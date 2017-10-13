@@ -1,0 +1,226 @@
+\section{Implementation}
+
+\begin{tabular}{|c|c|c|c|}
+	\hline 
+	\textbf{ Intermediates} & \textbf{Source Code Website} & \textbf{Version} & \textbf{Category} \\ 
+	\hline 
+	\hline 
+	Squid & http://www.squid-cache.org & 3.5.12 & \makecell{Transparent Cahce\\Forward Proxy\\Reverse Proxy} \\ 
+	\hline 
+	Apache & https://httpd.apache.org & &\makecell{Server\\ Forward Proxy\\ Reverse Proxy}\\
+	\hline
+\end{tabular} 
+
+\begin{lstlisting}[title= squid/src/HttpRequest.cc line:339]
+int HttpRequest::parseHeader(const char *parse_start, int len)
+{
+  const char *blk_start, *blk_end;
+  if (!httpMsgIsolateHeaders(&parse_start, len, &blk_start, &blk_end))
+  return 0;
+
+  int result = header.parse(blk_start, blk_end);
+
+  if (result)
+  hdrCacheInit();
+  return result;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[title=squid/src/HttpHeader.cc line:588]
+int HttpHeader::parse(const char *header_start, const char *header_end)
+{
+  ...
+  if ((e = HttpHeaderEntry::parse(field_start, field_end)) == NULL) //line 684
+  ...
+}
+\end{lstlisting}
+
+\begin{lstlisting}[title= squid/src/HttpHeader.cc line:1620]
+/* parses and inits header entry, returns true/false */
+HttpHeaderEntry * HttpHeaderEntry::
+parse(const char *field_start, const char *field_end)
+{
+  /* note: name_start == field_start */
+  const char *name_end = (const char *)memchr(field_start, ':', field_end - field_start);
+  int name_len = name_end ? name_end - field_start :0;
+  const char *value_start = field_start + name_len + 1; // skip ':' 
+  /* note: value_end == field_end */
+  ...
+  /* now we know we can parse it */
+  ...
+  /* is it a "known" field? */
+  // Header ID
+  http_hdr_type id = httpHeaderIdByName(field_start, name_len, Headers, HDR_ENUM_END);
+  String name;  // Header name
+  String value; // Header value
+  if (id < 0)
+  id = HDR_OTHER;
+  assert_eid(id);
+  
+  /* set field name */
+  if (id == HDR_OTHER)
+  name.limitInit(field_start, name_len);
+  else
+  name = Headers[id].name;
+  
+  /* trim field value */
+  while (value_start < field_end && xisspace(*value_start))
+  ++value_start;
+  
+  while (value_start < field_end && xisspace(field_end[-1]))
+  --field_end;
+  ...
+
+  /* set field value */
+  value.limitInit(value_start, field_end - value_start);
+  
+  debugs(55, 9, "parsed HttpHeaderEntry: '" << name << ": " << value << "'");
+  
+  return new HttpHeaderEntry(id, name.termedBuf(), value.termedBuf());
+}
+\end{lstlisting}
+
+\begin{lstlisting}[title=squid/src/client\_side.cc line:2152]
+ClientSocketContext *
+parseHttpRequest(ConnStateData *csd, HttpParser *hp, HttpRequestMethod * method_p, Http::ProtocolVersion *http_ver)
+{
+	...
+	/* Attempt to parse the first line; this'll define the method, url, version and header begin */
+	r = HttpParserParseReqLine(hp);
+	...
+	/* Rewrite the URL in transparent or accelerator mode */
+	/* NP: there are several cases to traverse here:
+	*  - standard mode (forward proxy)
+	*  - transparent mode (TPROXY)
+	*  - transparent mode with failures
+	*  - intercept mode (NAT)
+	*  - intercept mode with failures
+	*  - accelerator mode (reverse proxy)
+	*  - internal URL
+	*  - mixed combos of the above with internal URL
+	*  - remote interception with PROXY protocol
+	*  - remote reverse-proxy with PROXY protocol
+	*/
+	if (csd->transparent()) {
+		/* intercept or transparent mode, properly working with no failures */
+		prepareTransparentURL(csd, http, url, req_hdr);
+	} else if (internalCheck(url)) {
+		/* internal URL mode */
+		/* prepend our name & port */
+		http->uri = xstrdup(internalLocalUri(NULL, url));
+		// We just re-wrote the URL. Must replace the Host: header.
+		//  But have not parsed there yet!! flag for local-only handling.
+		http->flags.internal = true;
+	
+		} else if (csd->port->flags.accelSurrogate || csd->switchedToHttps()) {
+		/* accelerator mode */
+		prepareAcceleratedURL(csd, http, url, req_hdr);
+	}
+}
+\end{lstlisting}
+
+
+
+
+\begin{lstlisting}[title=squid/src/client\_side.cc  line:2110 prepareTransparentURL()] 
+static void
+prepareTransparentURL(ConnStateData * conn, ClientHttpRequest *http, char *url, const char *req_hdr)
+{
+	char *host;
+	char ipbuf[MAX_IPSTRLEN];
+	
+	if (*url != '/')
+	return; /* already in good shape */
+	
+	/* BUG: Squid cannot deal with '*' URLs (RFC2616 5.1.2) */
+	
+	if ((host = mime_get_header(req_hdr, "Host")) != NULL) 
+	{
+		int url_sz = strlen(url) + 32 + Config.appendDomainLen +
+		strlen(host);
+		http->uri = (char *)xcalloc(url_sz, 1);
+		snprintf(http->uri, url_sz, "%s://%s%s", AnyP::UriScheme(conn->port->transport.protocol).c_str(), host, url);
+		debugs(33, 5, "TRANSPARENT HOST REWRITE: '" << http->uri <<"'");
+	} 
+	else 
+	{
+		/* Put the local socket IP address as the hostname.  */
+		int url_sz = strlen(url) + 32 + Config.appendDomainLen;
+		http->uri = (char *)xcalloc(url_sz, 1);
+		http->getConn()->clientConnection->local.toHostStr(ipbuf,MAX_IPSTRLEN);
+		snprintf(http->uri, url_sz, "%s://%s:%d%s",
+		AnyP::UriScheme(http->getConn()->port->transport.protocol).c_str(),
+		ipbuf, http->getConn()->clientConnection->local.port(), url);
+		debugs(33, 5, "TRANSPARENT REWRITE: '" << http->uri << "'");
+	}
+}
+\end{lstlisting}
+
+\begin{lstlisting}[title=squid/src/mime\_header.cc  line:89]
+/* returns a pointer to a field-value of the first matching field-name */
+char * mime_get_header(const char *mime, const char *name)
+{
+	return mime_get_header_field(mime, name, NULL);
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[title=squid/src/mime\_header.cc  line:22]
+/*
+* returns a pointer to a field-value of the first matching field-name where
+* field-value matches prefix if any
+*/
+char * mime_get_header_field(const char *mime, const char *name, const char *prefix)
+{
+	LOCAL_ARRAY(char, header, GET_HDR_SZ);
+	const char *p = NULL;
+	char *q = NULL;
+	char got = 0;
+	const int namelen = name ? strlen(name) : 0;
+	const int preflen = prefix ? strlen(prefix) : 0;
+	int l;
+	...
+	for (p = mime; *p; p += strcspn(p, "\n\r")) {
+		if (strcmp(p, "\r\n\r\n") == 0 || strcmp(p, "\n\n") == 0)
+			return NULL;
+
+		//Squid表现：If no host before: recognize. Else not recognize.
+		while (xisspace(*p))  //Space-preceded Host Host前方有空格的解析 
+			++p;
+
+		if (strncasecmp(p, name, namelen))
+			continue;
+		if (!xisspace(p[namelen]) && p[namelen] != ':')
+			continue;
+		l = strcspn(p, "\n\r") + 1;
+		if (l > GET_HDR_SZ)
+			l = GET_HDR_SZ;
+
+		xstrncpy(header, p, l);
+		q = header;
+		q += namelen;
+		if (*q == ':') {
+			++q;
+			got = 1;
+		}
+
+		///Squid表现：If no host before: reject. Else not recognize. 有矛盾？
+		while (xisspace(*q)) { //Space-succeeded Host Host后方有空格的解析 
+			++q;
+			got = 1;
+		}
+
+		if (got && prefix) {
+			/* we could process list entries here if we had strcasestr(). */
+			/* make sure we did not match a part of another field-value */
+			got = !strncasecmp(q, prefix, preflen) && !xisalpha(q[preflen]);
+		}
+
+		if (got) {
+			debugs(25, 5, "mime_get_header: returning '" << q << "'");
+			return q;
+		}
+	}
+	return NULL;
+}
+\end{lstlisting}
