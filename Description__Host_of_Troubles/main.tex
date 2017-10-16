@@ -9,11 +9,11 @@
 \usepackage{parskip}
 \usepackage{fancyhdr}
 \usepackage{vmargin}
-\usepackage{ctex}
 
+\usepackage{ctex}
 \usepackage{multicol} %用于实现在同一页中实现不同的分栏
 \usepackage{setspace} %设置行间距
-\usepackage{makecell} %使用该包的\makecell命令进行单元格内的换行
+
 
 %以下三个包用于给文本加边框
 \usepackage{lipsum}  
@@ -21,9 +21,13 @@
 \usepackage{tcolorbox}
 
 \usepackage{multirow} %表格单元格跨行跨列
+\usepackage{makecell} %使用该包的\makecell命令进行单元格内的换行
+
 
 \usepackage{xcolor}
 
+
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
 \input{listings_template} %插入代码框的设置,引入包+设置 
 
 \setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
