@@ -1,3 +1,4 @@
+\newpage
 \section{Case Studies}
 \subsection{Multiple Host Headers}
 
@@ -8,7 +9,7 @@
 	\begin{tcolorbox}
 	
 		\textbf{RFC 2616}
-		Multiple message-header fields with the same \texttt{field-name} MAY be present in a message {\color{red}{ if and only if (隐晦地说明Multiple Host是不允许的)}} the entire \texttt{field-value} for that header field is defined as a comma-separated list. It MUST be possible to combine the multiple header fields into one ``\texttt{field-name: field-value}'' pair, without changing the semantics of the message, by appending each subsequent field-value to the first, each separated by a comma. (Page 22, 4.2, Meassage Headers)
+		Multiple message-header fields with the same \texttt{field-name} {\color{red}{MAY}} be present in a message {\color{red}{ if and only if (隐晦地说明Multiple Host是不允许的)}} the entire \texttt{field-value} for that header field is defined as a comma-separated list. It MUST be possible to combine the multiple header fields into one ``\texttt{field-name: field-value}'' pair, without changing the semantics of the message, by appending each subsequent field-value to the first, each separated by a comma. (Page 22, 4.2, Meassage Headers)
 	\end{tcolorbox}
 \end{spacing} 
 
@@ -42,9 +43,9 @@
 \end{figure*}
 
 首先，在同一个Request中出现多个\texttt{Host}本来就是非法的，而ESET和Nginx都允许这种情况出现。其次，面对多个\texttt{Host}，二者选择的方式不一样，见下表：
-\begin{table}
+
+\begin{table}[!htbp]
 	\renewcommand\arraystretch{1} 
-	\caption{Case 1}
 	\begin{tabular}{|c|c|c|}
 		\hline 
 		\textbf{Implementation} & \makecell{\textbf{Preference} \\ \textbf{for multiple \texttt{Host}}} & \makecell{\textbf{Request forwarding} \& \\ \textbf{Host interpreting}}  \\  
@@ -59,11 +60,9 @@
 		RFC 7230 & Reject & \makecell{ Absolute-URI中的Host优先\\为Absolute-URI新建一个Host字段\\ Host字段其次} \\
 		\hline
 	\end{tabular} 
+\caption{Case 1}
 \end{table}
 
-
-
-\vspace{2ex}
 \textbf{Case 2} 讨论如果Request中同时存在Absolute-URI和Host字段,该如何解析和处理。
 \begin{spacing}{0.8}
 	\begin{tcolorbox}
@@ -88,16 +87,16 @@
 
 总结起来就是说：如果有\texttt{Absolute-URI}，则取这里面的Host，\texttt{Host}字段中的值被忽略。如果没有\texttt{Absolute-URI}，则以\texttt{Host}字段的值为准。否则，报错400 Bad Request。
 
-\begin{figure*}[tbph!]
+\begin{figure*}[!htbp]
 	\centering
 	\includegraphics[width=1.0\linewidth]{images/AbsoluteURI_Host}
 	\caption{Absolute URI with \texttt{Host} headers.}
 	\label{fig:absolute-uri_host}
 \end{figure*}
 
-\begin{table}
+\begin{table}[!htbp]
 	\renewcommand\arraystretch{1}
-	\caption{Case 2}
+	\centering
 	\begin{tabular}{|l|c|c|c|l|c|}
 		\hline
 		\multicolumn{2}{|c}{\multirow{3}{*}{\tabincell{l}{Implementation\\/Specification}}} & 
@@ -105,7 +104,7 @@
 		\multicolumn{1}{c|}{\multirow{3}{*}{Request forwarding}} &
 		\multicolumn{1}{c|}{\multirow{3}{*}{\tabincell{c}{Preference\\for multiple\\Host}}}
 		\\ 
-		\multicolumn{2}{|l|}{} & \multicolumn{2}{|c|}{} & &
+		\multicolumn{2}{|l|}{} & \multicolumn{2}{c|}{} & &
 		\\ \cline{3-4}
 		\multicolumn{2}{|l|}{} & \textbf{Preference} & \textbf{Consistency} & &
 		\\ \hline
@@ -119,42 +118,37 @@
 		& RFC 7230 & Absolute-URI & Must & & Reject
 		\\ \hline
 	\end{tabular}
+\caption{Case 2}
 \end{table}
 
-
-
-\vspace{2ex}
+\pagebreak
 \textbf{Case 3} 讨论多Host header，同时伴随前置空格(preceding space)的情况。
-
 \begin{spacing}{0.8}
 	\begin{tcolorbox}
 		\textbf{RFC 7230}
-		A field value might be preceded and/or followed by optional whitespace (OWS); a single SP preceding the field-value is preferred for consistent readability by humans. The field value does not include any leading or trailing whitespace: OWS occurring before the first non-whitespace octet of the field value or after the last non-whitespace octet of the field value ought to be excluded by parsers when extracting the field value from a header field. (Page 25, 3.2.4, Field Parsing) {\color{red}{隐约地说明field value最前头或最后头有空格是允许的？}}
+		A field value {\color{red}{might}} be preceded and/or followed by optional whitespace (OWS); a single SP preceding the field-value is preferred for consistent readability by humans. The field value does not include any leading or trailing whitespace: OWS occurring before the first non-whitespace octet of the field value or after the last non-whitespace octet of the field value ought to be excluded by parsers when extracting the field value from a header field. (Page 25, 3.2.4, Field Parsing) {\color{red}{隐约地说明field value最前头或最后头有空格是允许的!}}
 	\end{tcolorbox}
 \end{spacing}
 
-
-\begin{figure*}[tbph!]
+\begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=1.0\linewidth]{images/Multi-Host_Preceding_Space}
 	\caption{Multiple \texttt{Host} headers with preceding space.}
 	\label{fig:multi-host_precedingspace}
-\end{figure*}
+\end{figure}
  
- 
-\begin{table}
+\begin{table}[!htbp]
 	\renewcommand\arraystretch{1}
-	\caption{Case 3-1}
-	\begin{tabular}{|l|l|l|l|l|}
+	\begin{tabular}{|c|c|c|c|c|}
 		\hline
 		\multicolumn{2}{|c|}{\multirow{2}{*}{\tabincell{l}{Implementation\\/Specification}}} & 
-	\multirow{2}{*}{\tabincell{l}{Space-preceded Host\\ as first Host header}} &
-	\multirow{2}{*}{\tabincell{l}{Other Space-preceded\\Host header}} &
-	\multirow{2}{*}{\tabincell{l}{Space-succeeded\\Host header}} 
+	\multirow{2}{*}{\tabincell{c}{Space-preceded Host\\ as first Host header}} &
+	\multirow{2}{*}{\tabincell{c}{Other Space-preceded\\Host header}} &
+	\multirow{2}{*}{\tabincell{c}{Space-succeeded\\Host header}} 
 	\\ 
 	\multicolumn{2}{|c|}{} & \multirow{2}{*}{} & \multirow{2}{*}{}& \multirow{2}{*}{}
 	\\ \hline
-	Squid & \tabincell{l}{Transparent\\Cache} & \tabincell{l}{If no Host header \\ before:recognize \\ Else: not recognize} & \tabincell{l}{If no Host header\\before:recognize\\Else: not recognize} & \tabincell{l}{If no Host header\\before:recognize\\Else: not recognize}
+	Squid & \tabincell{c}{Transparent\\Cache} & \tabincell{l}{If no Host header \\ before:recognize \\ Else: {\color{red}{not recognize}}} & \tabincell{l}{If no Host header\\before:recognize\\Else: not recognize} & \tabincell{l}{If no Host header\\before:recognize\\Else: not recognize}
 	\\ \hline
 	Tencent & CDN & Recognize & Recognize & Recognize 
 	\\ \hline \hline 
@@ -163,19 +157,20 @@
 	& RFC 7230 & Recognize & Recognize & Recognize 
 	\\ \hline
 \end{tabular}
+\caption{Case 3-1, {\color{red}{Recognize: accepting as valid host field}},{\color{red}{Reject: 400 Bad Requests}}, {\color{red}{Reject: Not recognize:either ignoring or accepting as an unknown header field}}.}
 \end{table}
 
-\begin{table}
+\begin{table}[!htbp]
 	\renewcommand\arraystretch{1}
-	\caption{Case 3-2}
+	\centering
 	\begin{tabular}{|c|c|c|}
 		\hline
-		\multicolumn{2}{|c|}{\multirow{2}{*}{\tabincell{c}{Implementation\\/Specification}}} &
-		\multirow{2}{*}{\tabincell{l}{Preference \\for multiple Host}}
+		\multicolumn{2}{|c|}{\multirow{2}{*}{Implementation/Specification}} &
+		\multirow{2}{*}{Preference for multiple Host}
 		\\ 
 		\multicolumn{2}{|c|}{} & 
 		\\ \hline
-		Squid & \tabincell{c}{Transparent\\Cache} & Prefer first 
+		Squid & Transparent Cache & Prefer first 
 		\\ \hline
 		Tencent & CDN & Prefer last
 		\\ \hline \hline
@@ -184,6 +179,32 @@
 		& RFC 7230 & Reject
 		\\ \hline
 	\end{tabular}
+\caption{Case 3-2}
 \end{table}
 
 
+Case 4: 讨论RFC Ambiguities可能出现的地方
+\begin{spacing}{0.8}
+	\begin{tcolorbox}
+		\textbf{RFC 7230} A field value might be preceded and/or followed by optional whitespace (OWS) ...
+	\end{tcolorbox}
+\end{spacing}
+
+\vspace{1ex}
+
+\begin{spacing}{0.8}
+	\begin{tcolorbox}
+		A server that receives an obs-fold in a request message MUST {\color{red}{either}} reject the message by
+		sending a 400 (Bad Request) ... {\color{red}{or}} replace each received obs-fold with one or more SP octets prior to interpreting the field value {\color{red}{or}} forwarding the message downstream.
+		
+		A proxy or gateway MUST {\color{red}{either}} discard the message and replace it with a 502 (Bad Gateway) response {\color{red}{or}} replace each received obs-fold with one {\color{red}{or}} more SP octets prior to interpreting the field value or forwarding the message downstream.  (Page 25-26, 3.2.4, Field Parsing)
+	\end{tcolorbox}
+\end{spacing}
+
+\vspace{1ex}
+
+\begin{spacing}{0.8}
+	\begin{tcolorbox}
+	A proxy or gateway MUST {\color{red}{either}} discard the message and replace it with a 502 (Bad Gateway) response {\color{red}{or}} replace each received obs-fold with one {\color{red}{or}} more SP octets prior to interpreting the field value or forwarding the message downstream.  (Page 26, 3.2.4, Field Parsing)
+	\end{tcolorbox}
+\end{spacing}

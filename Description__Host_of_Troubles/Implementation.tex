@@ -1,15 +1,21 @@
+\newpage
 \section{Implementation}
 
-\begin{tabular}{|c|c|c|c|}
-	\hline 
-	\textbf{ Intermediates} & \textbf{Source Code Website} & \textbf{Version} & \textbf{Category} \\ 
-	\hline 
-	\hline 
-	Squid & http://www.squid-cache.org & 3.5.12 & \makecell{Transparent Cahce\\Forward Proxy\\Reverse Proxy} \\ 
-	\hline 
-	Apache & https://httpd.apache.org & &\makecell{Server\\ Forward Proxy\\ Reverse Proxy}\\
-	\hline
-\end{tabular} 
+\begin{table}[htbp!]
+	\centering
+	\renewcommand\arraystretch{1}
+	\begin{tabular}{|c|c|c|c|}
+		\hline 
+		\textbf{ Intermediates} & \textbf{Source Code Website} & \textbf{Version} & \textbf{Category} \\ 
+		\hline 
+		\hline 
+		Squid & http://www.squid-cache.org & 3.5.12 & \makecell{Transparent Cahce\\Forward Proxy\\Reverse Proxy} \\ 
+		\hline 
+		Apache & https://httpd.apache.org & &\makecell{Server\\ Forward Proxy\\ Reverse Proxy}\\
+		\hline
+	\end{tabular} 
+\end{table}
+
 
 \begin{lstlisting}[title= squid/src/HttpRequest.cc line:339]
 int HttpRequest::parseHeader(const char *parse_start, int len)
