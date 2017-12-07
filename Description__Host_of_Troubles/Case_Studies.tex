@@ -46,6 +46,7 @@
 
 \begin{table}[!htbp]
 	\renewcommand\arraystretch{1} 
+	{\tabcolsep  0.06in
 	\begin{tabular}{|c|c|c|}
 		\hline 
 		\textbf{Implementation} & \makecell{\textbf{Preference} \\ \textbf{for multiple \texttt{Host}}} & \makecell{\textbf{Request forwarding} \& \\ \textbf{Host interpreting}}  \\  
@@ -59,7 +60,8 @@
 		\hline
 		RFC 7230 & Reject & \makecell{ Absolute-URI中的Host优先\\为Absolute-URI新建一个Host字段\\ Host字段其次} \\
 		\hline
-	\end{tabular} 
+	\end{tabular}
+} 
 \caption{Case 1}
 \end{table}
 
@@ -97,7 +99,8 @@
 \begin{table}[!htbp]
 	\renewcommand\arraystretch{1}
 	\centering
-	\begin{tabular}{|l|c|c|c|l|c|}
+	{\tabcolsep  0.02in
+	\begin{tabular}{|c|c|c|c|l|c|}
 		\hline
 		\multicolumn{2}{|c}{\multirow{3}{*}{\tabincell{l}{Implementation\\/Specification}}} & 
 		\multicolumn{2}{|c|}{\multirow{2}{*}{\tabincell{l}{Prefer Absolute-URI\\vs. Prefer Host header}}} &
@@ -108,9 +111,9 @@
 		\\ \cline{3-4}
 		\multicolumn{2}{|l|}{} & \textbf{Preference} & \textbf{Consistency} & &
 		\\ \hline
-		Squid & \tabincell{c}{Transparent\\Cache} & Absolute-URI & Optional & {\tabincell{l}{1.Generate a new \\ Host header \\for Absolute-URI \\and select this one. \\ 2.Forward\\ space-preceded \\Host headers as-is}} & Prefer first
+		Squid & \tabincell{c}{Transparent\\Cache} & {\color{red}{Absolute-URI}} & Optional & {\tabincell{l}{1.Generate a new \\ Host header \\for Absolute-URI \\and select this one. \\ 2.Forward\\ space-preceded \\Host headers as-is}} & Prefer \textbf{first}
 		\\ \hline
-		Akamai & CDN & Host header & Optional & & Prefer first
+		Akamai & CDN & {\color{red}{Host header}} & Optional & & Prefer \textbf{first}
 		\\ \hline
 		\hline
 		\multicolumn{1}{|c|}{\multirow{2}{*}{Specification}}  & RFC 2616 & Absolute-URI & Not Specified & & Reject
@@ -118,6 +121,7 @@
 		& RFC 7230 & Absolute-URI & Must & & Reject
 		\\ \hline
 	\end{tabular}
+}
 \caption{Case 2}
 \end{table}
 
@@ -139,6 +143,7 @@
  
 \begin{table}[!htbp]
 	\renewcommand\arraystretch{1}
+	 {\tabcolsep  0.04in
 	\begin{tabular}{|c|c|c|c|c|}
 		\hline
 		\multicolumn{2}{|c|}{\multirow{2}{*}{\tabincell{l}{Implementation\\/Specification}}} & 
@@ -157,6 +162,7 @@
 	& RFC 7230 & Recognize & Recognize & Recognize 
 	\\ \hline
 \end{tabular}
+}
 \caption{Case 3-1, {\color{red}{Recognize: accepting as valid host field}},{\color{red}{Reject: 400 Bad Requests}}, {\color{red}{Reject: Not recognize:either ignoring or accepting as an unknown header field}}.}
 \end{table}
 
@@ -186,7 +192,7 @@
 Case 4: 讨论RFC Ambiguities可能出现的地方
 \begin{spacing}{0.8}
 	\begin{tcolorbox}
-		\textbf{RFC 7230} A field value might be preceded and/or followed by optional whitespace (OWS) ...
+		\textbf{RFC 7230} A field value {\color{red}{might}} be preceded and/or followed by optional whitespace (OWS) ...
 	\end{tcolorbox}
 \end{spacing}
 
@@ -195,9 +201,7 @@ Case 4: 讨论RFC Ambiguities可能出现的地方
 \begin{spacing}{0.8}
 	\begin{tcolorbox}
 		A server that receives an obs-fold in a request message MUST {\color{red}{either}} reject the message by
-		sending a 400 (Bad Request) ... {\color{red}{or}} replace each received obs-fold with one or more SP octets prior to interpreting the field value {\color{red}{or}} forwarding the message downstream.
-		
-		A proxy or gateway MUST {\color{red}{either}} discard the message and replace it with a 502 (Bad Gateway) response {\color{red}{or}} replace each received obs-fold with one {\color{red}{or}} more SP octets prior to interpreting the field value or forwarding the message downstream.  (Page 25-26, 3.2.4, Field Parsing)
+		sending a 400 (Bad Request) ... {\color{red}{or}} replace each received obs-fold with one or more SP octets prior to interpreting the field value {\color{red}{or}} forwarding the message downstream.(Page 25, 3.2.4, Field Parsing)
 	\end{tcolorbox}
 \end{spacing}
 
