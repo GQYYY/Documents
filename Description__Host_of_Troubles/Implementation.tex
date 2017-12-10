@@ -233,24 +233,157 @@ char * mime_get_header_field(const char *mime, const char *name, const char *pre
 
 \begin{table}
 	\renewcommand\arraystretch{1.1}      %表格内部1.2倍行距离
-	\caption{模型D不同样本量下CML和CLS的模拟结果($r$未知)}
+	\caption{2个Host行都没有空格的情况对比}
 	\vspace{1.2mm}                  %让标题与表格空出一个1.2毫米的行间距
 	\centering                            %居中显示
-	{\tabcolsep  0.09in                    %列间距
+	{\tabcolsep  0.05in                    %列间距
 		\begin{tabular}{cccccccc}
 			\hline
-			& \multicolumn{3}{c}{Nginx} & & \multicolumn{3}{c}{Squid}\\
+			& \multicolumn{3}{c}{\textbf{Nginx}} & & \multicolumn{3}{c}{\textbf{Squid}}\\
 			\cline{2-4}\cline{6-8}
-			Test Case & Status Code  & Content  & X-Cache  & &  Status Code  & Content & X-Cache\\
+			\textbf{Test Case}& \textbf{Status Code} & \textbf{Content}  & \textbf{X-Cache}  & &  \textbf{Status Code}  & \textbf{Content} & \textbf{X-Cache}\\
 			\hline
-			1 &  0.794  &  -0.006  &  0.015  & &  0.761  &  -0.039  &  0.003 \\
-			2 &  0.866  &  -0.034  &  0.004  & &  0.878  &  -0.022  &  0.001 \\
-			3 &  7.488  &  1.488  &  19.910  & &  7.230  &  1.230  &  2.830 \\
-			4 &  $7^\ast$&  1      &  1      & &  $7^\ast$& 1      &  1 \\
-		    5 &  33.180 &  -1.820  &  53.988  & &  33.700 &  -1.300  &  52.520 \\
-			6 &  $34^\ast$&  -1    &  1      & &  $34^\ast$&-1      &  1 \\
+			1 &   200  &  attack.html  &  HIT  & &  200  &  attack.html  &  HIT \\
+			2 &  200 &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			3 &  200  &  benigh.html &  HIT  & &  200  &  benigh.html  &  HIT \\
+			4 &  200 &  benigh.html&  HIT      & &  200 & benigh.html   &  HIT \\
+		    5 &  200 &  attack.html  &  HIT  & &  200 &  attack.html  &  HIT \\
+			6 &  200 &  attack.html  &  HIT     & &  200 & attack.html     &  HIT \\
 			\hline
 		\end{tabular}
 	}
 \end{table}
 
+\begin{table}
+	\renewcommand\arraystretch{1.1}      %表格内部1.2倍行距离
+	\caption{2个Host行都带有前空格的情况对比}
+	\vspace{1.2mm}                  %让标题与表格空出一个1.2毫米的行间距
+	\centering                            %居中显示
+	{\tabcolsep  0.05in                    %列间距
+		\begin{tabular}{cccccccc}
+			\hline
+			& \multicolumn{3}{c}{\textbf{Nginx}} & & \multicolumn{3}{c}{\textbf{Squid}}\\
+			\cline{2-4}\cline{6-8}
+			\textbf{Test Case}& \textbf{Status Code} & \textbf{Content}  & \textbf{X-Cache}  & &  \textbf{Status Code}  & \textbf{Content} & \textbf{X-Cache}\\
+			\hline
+			1 &   {\color{red}{400}} &  {\color{red}{Bad Request}} &    & &  200  &  benigh.html  &  HIT \\
+			2 &  {\color{red}{400}} &  {\color{red}{Bad Request}}  &    & &  200  &  attack.html  &  HIT \\
+			3 &  {\color{red}{400}}  &  {\color{red}{Bad Request}} &    & &  200  &  benigh.html  &  HIT \\
+			4 &  {\color{red}{400}} &  {\color{red}{Bad Request}} &        & &  200 & benigh.html   &  HIT \\
+			5 &  {\color{red}{400}} &  {\color{red}{Bad Request}} &    & &  200 &  attack.html  &  HIT \\
+			6 &  {\color{red}{400}} &  {\color{red}{Bad Request}}  &      & &  200 & attack.html     &  HIT \\
+			\hline
+		\end{tabular}
+	}
+\end{table}
+
+\begin{table}
+	\renewcommand\arraystretch{1.1}      %表格内部1.2倍行距离
+	\caption{2个Host行都带有后空格情况对比}
+	\vspace{1.2mm}                  %让标题与表格空出一个1.2毫米的行间距
+	\centering                            %居中显示
+	{\tabcolsep  0.05in                    %列间距
+		\begin{tabular}{cccccccc}
+			\hline
+			& \multicolumn{3}{c}{\textbf{Nginx}} & & \multicolumn{3}{c}{\textbf{Squid}}\\
+			\cline{2-4}\cline{6-8}
+			\textbf{Test Case}& \textbf{Status Code} & \textbf{Content}  & \textbf{X-Cache}  & &  \textbf{Status Code}  & \textbf{Content} & \textbf{X-Cache}\\
+			\hline
+			1 &   200  &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			2 &  200 &  attack.html  &  HIT  & &  200  &  attack.html  &  HIT \\
+			3 &  200  &  benigh.html &  HIT  & &  200  &  benigh.html  &  HIT \\
+			4 &  200 &  benigh.html&  HIT      & &  200 & benigh.html   &  HIT \\
+			5 &  200 &  attack.html  &  HIT  & &  200 &  attack.html  &  HIT \\
+			6 &  200 &  attack.html  &  HIT     & &  200 & attack.html     &  HIT \\
+			\hline
+		\end{tabular}
+	}
+\end{table}
+
+\begin{table}
+	\renewcommand\arraystretch{1.1}      %表格内部1.2倍行距离
+	\caption{1个Host行不带空格，另1个Host行带前空格情况对比}
+	\vspace{1.2mm}                  %让标题与表格空出一个1.2毫米的行间距
+	\centering                            %居中显示
+	{\tabcolsep  0.05in                    %列间距
+		\begin{tabular}{cccccccc}
+			\hline
+			& \multicolumn{3}{c}{\textbf{Nginx}} & & \multicolumn{3}{c}{\textbf{Squid}}\\
+			\cline{2-4}\cline{6-8}
+			\textbf{Test Case}& \textbf{Status Code} & \textbf{Content}  & \textbf{X-Cache}  & &  \textbf{Status Code}  & \textbf{Content} & \textbf{X-Cache}\\
+			\hline
+			1 &   200  &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			2 &  200 &   {\color{red}{attack.html}} &  HIT  & &  200  &  {\color{red}{benigh.html}}  &  HIT \\
+			3 &  200  &  attack.html &  HIT  & &  200  &  attack.html  &  HIT \\
+			4 &  200 &  {\color{red}{benigh.html}} &  HIT      & &  200 & {\color{red}{attack.html}}   &  HIT \\
+			5 &  200 &  benigh.html  &  HIT  & &  200 &  benigh.html  &  HIT \\
+			6 &  200 &  benigh.html  &  HIT     & &  200 & benigh.html     &  HIT \\
+			7 &   200  &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			8 &  200 &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			9 &  200  &  attack.html &  HIT  & &  200  &  attack.html  &  HIT \\
+			10 &  200 &  attack.html&  HIT      & &  200 & attack.html   &  HIT \\
+			11 &  200 &  attack.html  &  HIT  & &  200 &  attack.html  &  HIT \\
+			12 &  200 &  attack.html  &  HIT     & &  200 & attack.html     &  HIT \\
+			\hline
+		\end{tabular}
+	}
+\end{table}
+
+\begin{table}
+	\renewcommand\arraystretch{1.1}      %表格内部1.2倍行距离
+	\caption{1个Host行不带空格，另1个Host行带后空格情况对比}
+	\vspace{1.2mm}                  %让标题与表格空出一个1.2毫米的行间距
+	\centering                            %居中显示
+	{\tabcolsep  0.05in                    %列间距
+		\begin{tabular}{cccccccc}
+			\hline
+			& \multicolumn{3}{c}{\textbf{Nginx}} & & \multicolumn{3}{c}{\textbf{Squid}}\\
+			\cline{2-4}\cline{6-8}
+			\textbf{Test Case}& \textbf{Status Code} & \textbf{Content}  & \textbf{X-Cache}  & &  \textbf{Status Code}  & \textbf{Content} & \textbf{X-Cache}\\
+			\hline
+			1 &   200  &  attack.html  &  HIT  & &  200  &  attack.html  &  HIT \\
+			2 &  200 &   attack.html &  HIT  & &  200  &  attack.html  &  HIT \\
+			3 &  200  &  benigh.html &  HIT  & &  200  &  benigh.html  &  HIT \\
+			4 &  200 &  benigh.html &  HIT      & &  200 & benigh.html  &  HIT \\
+			5 &  200 &  benigh.html  &  HIT  & &  200 &  benigh.html  &  HIT \\
+			6 &  200 &  benigh.html  &  HIT     & &  200 & benigh.html     &  HIT \\
+			7 &   200  &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			8 &  200 &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			9 &  200  &  attack.html &  HIT  & &  200  &  attack.html  &  HIT \\
+			10 &  200 &  attack.html&  HIT      & &  200 & attack.html   &  HIT \\
+			11 &  200 &  attack.html  &  HIT  & &  200 &  attack.html  &  HIT \\
+			12 &  200 &  attack.html  &  HIT     & &  200 & attack.html     &  HIT \\
+			\hline
+		\end{tabular}
+	}
+\end{table}
+
+\begin{table}
+	\renewcommand\arraystretch{1.1}      %表格内部1.2倍行距离
+	\caption{1个Host行带前空格，另1个Host行带后空格情况对比}
+	\vspace{1.2mm}                  %让标题与表格空出一个1.2毫米的行间距
+	\centering                            %居中显示
+	{\tabcolsep  0.05in                    %列间距
+		\begin{tabular}{cccccccc}
+			\hline
+			& \multicolumn{3}{c}{\textbf{Nginx}} & & \multicolumn{3}{c}{\textbf{Squid}}\\
+			\cline{2-4}\cline{6-8}
+			\textbf{Test Case}& \textbf{Status Code} & \textbf{Content}  & \textbf{X-Cache}  & &  \textbf{Status Code}  & \textbf{Content} & \textbf{X-Cache}\\
+			\hline
+			1 &   200  &  {\color{red}{attack.html}}  &  HIT  & &  200  &  {\color{red}{benigh.html}}  &  HIT \\
+			2 &  200 &   benigh.html &  HIT  & &  200  &  benigh.html  &  HIT \\
+			3 &  200  &  {\color{red}{benigh.html}} &  HIT  & &  200  &  {\color{red}{attack.html}}   &  HIT \\
+			4 &  200 &  attack.html &  HIT      & &  200 & attack.html   &  HIT \\
+			5 &  200 &  benigh.html  &  HIT  & &  200 &  benigh.html  &  HIT \\
+			6 &  200 &  benigh.html  &  HIT     & &  200 & benigh.html     &  HIT \\
+			7 &   200  &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			8 &  200 &  benigh.html  &  HIT  & &  200  &  benigh.html  &  HIT \\
+			9 &  200  &  attack.html &  HIT  & &  200  &  attack.html  &  HIT \\
+			10 &  200 &  attack.html&  HIT      & &  200 & attack.html   &  HIT \\
+			11 &  200 &  attack.html  &  HIT  & &  200 &  attack.html  &  HIT \\
+			12 &  200 &  attack.html  &  HIT     & &  200 & attack.html     &  HIT \\
+			\hline
+		\end{tabular}
+	}
+\end{table}v
+{\color{red}{400}}
